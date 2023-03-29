@@ -17,7 +17,7 @@ public class ChatMessage implements Serializable {
     @Id
     private Long id;
     private String roomId; // 방 번호
-    private String senderId; // 발신자 ID
+    private Long senderId; // 발신자 ID
     private String content; // 채팅 내용
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)

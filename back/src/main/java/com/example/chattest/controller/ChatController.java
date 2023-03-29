@@ -9,8 +9,9 @@ import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-@Controller
+@RestController
 @RequiredArgsConstructor
 public class ChatController {
     private final PublisherService publisherService;

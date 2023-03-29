@@ -40,6 +40,12 @@ public class PublisherService {
         message.setId(id);
         message.setTimestamp(LocalDateTime.now());
 
+        String roomId = message.getRoomId();
+        ChatRoom chatRoom = opsHashChatRoom.get(ROOMS, roomId);
+        Map<Long, Long> lastReadIndex = chatRoom.getLastReadIndex();
+        Long lastIndex = lastReadIndex.get(message.getSenderId() );
+        lastReadIndex.put(message.getSenderId(), lastIndex + 1);
+
         opsListChatMessages.rightPush(message.getRoomId(), message);
 
         /** 채널 topic에 메시지 보내기 **/
