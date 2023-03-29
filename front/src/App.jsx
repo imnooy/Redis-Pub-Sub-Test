@@ -8,7 +8,7 @@ function App() {
   const [chatRooms, setChatRooms] = useState([]);
   const [showChat, setShowChat] = useState(false);
 
-  const ws = new SockJS('http://localhost:8080/chat');
+  const ws = new SockJS('http://localhost:8080/api/chat');
   const stompClient = Stomp.over(ws);
 
   useEffect(() => {
@@ -17,7 +17,7 @@ function App() {
   }, []);
 
   const findAllRoom = () => {
-    axios.get('http://localhost:8080/chat/rooms')
+    axios.get('http://localhost:8080/api/chat/rooms')
       .then(response => {
         setChatRooms(response.data);
       });
@@ -29,7 +29,7 @@ function App() {
       소켓 연결
       /chat으로 가는 요청에 대해 소켓 연결 설정
     */
-    const ws = new SockJS('http://localhost:8080/chat');
+    const ws = new SockJS('http://localhost:8080/api/chat');
     const stompClient = Stomp.over(ws);
 
     /*
@@ -37,7 +37,7 @@ function App() {
       {userId: [1, 2]} 객체를 Publish 하겠다.
     */
     stompClient.connect({}, function(frame) {
-      stompClient.send("/pub/chat/rooms", {}, JSON.stringify({userIds:[1, 2]}));
+      stompClient.send("/api/pub/chat/rooms", {}, JSON.stringify({userIds:[1, 2]}));
       // stompClient.disconnect();
     });
   };

@@ -10,13 +10,13 @@ function Chat() {
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([]);
 
-  const ws = new SockJS('http://localhost:8080/chat');
+  const ws = new SockJS('http://localhost:8080/api/chat');
   const stompClient = Stomp.over(ws);
 
   useEffect(() => {
     findRoom();
     connect();
-    axios.get(`http://localhost:8080/chat/room/${roomId}`+"/messages")
+    axios.get(`http://localhost:8080/api/chat/room/${roomId}`+"/messages")
     .then((response) => {
       setMessages(response.data);
     })
@@ -26,16 +26,16 @@ function Chat() {
   }, []);
 
   const findRoom = () => {
-    axios.get(`http://localhost:8080/chat/room/${roomId}`).then((response) => {
+    axios.get(`http://localhost:8080/api/chat/room/${roomId}`).then((response) => {
       setRoom(response.data);
     });
   };
 
   const sendMessage = () => {
-    const ws = new SockJS('http://localhost:8080/chat');
+    const ws = new SockJS('http://localhost:8080/api/chat');
     const stompClient = Stomp.over(ws);
     stompClient.connect({}, function(frame) {
-      stompClient.send("/pub/chat/message", {}, JSON.stringify({roomId:roomId, senderId:sender, content:message}));
+      stompClient.send("/api/pub/chat/message", {}, JSON.stringify({roomId:roomId, senderId:sender, content:message}));
       setMessage('');
       stompClient.disconnect();
     });

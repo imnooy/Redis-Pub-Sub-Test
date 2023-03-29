@@ -17,7 +17,7 @@ public class ChatWebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
         /** client에서 SEND 처리 **/
-        registry.setApplicationDestinationPrefixes("/pub");
+        registry.setApplicationDestinationPrefixes("/api/pub");
 
         /** 구독자들에게 전달 **/
         registry.enableSimpleBroker("/sub");
