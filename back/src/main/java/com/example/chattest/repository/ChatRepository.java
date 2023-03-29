@@ -80,6 +80,10 @@ public class ChatRepository {
         return null;
     }
 
+    public void addTopic(ChannelTopic topic) {
+        msgTopics.put(topic.getTopic(), topic);
+    }
+
     /**
      * 채팅 방 목록(topics)에서 roomId에 해당하는 채팅방 이름 넘기기
      */

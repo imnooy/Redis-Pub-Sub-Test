@@ -7,6 +7,7 @@ import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
+import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -20,7 +21,9 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class PublisherService {
     private final RedisTemplate redisTemplate;
+    private final RedisMessageListenerContainer redisMessageListener;
 
+    private final SubscriberService subscriberService;
     private ListOperations<String, ChatMessage> opsListChatMessages;
     private HashOperations<String,String, ChatRoom> opsHashChatRoom;
     private static final String ROOMS = "Rooms";
@@ -47,6 +50,7 @@ public class PublisherService {
         lastReadIndex.put(message.getSenderId(), lastIndex + 1);
 
         opsListChatMessages.rightPush(message.getRoomId(), message);
+        redisMessageListener.addMessageListener(subscriberService, topic);
 
         /** 채널 topic에 메시지 보내기 **/
         redisTemplate.convertAndSend(topic.getTopic(), message);

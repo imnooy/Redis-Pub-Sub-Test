@@ -25,6 +25,10 @@ public class ChatController {
     @MessageMapping("/chat/message")
     public void message(ChatMessage message) {
         ChannelTopic topic = chatRepository.getMsgTopic(message.getRoomId());
+        if(topic == null) {
+            topic = new ChannelTopic(message.getRoomId());
+            chatRepository.addTopic(topic);
+        }
         /** 토픽 가져와서 해당 방에 message 전달 **/
         publisherService.msgPublish(topic, message);
     }

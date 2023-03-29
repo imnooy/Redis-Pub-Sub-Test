@@ -33,7 +33,9 @@ public class SubscriberService implements MessageListener {
         String publishedMessge = (String) redisTemplate.getStringSerializer().deserialize(message.getBody());
         ChatMessage msgObj = null;
         try {
+            System.out.println("메세지임?");
             msgObj = objectMapper.readValue(publishedMessge, ChatMessage.class);
+            System.out.println(msgObj);
         } catch (Exception e) {
             System.out.println("hi");
             ChatRoom chatRoom = null;
@@ -45,6 +47,7 @@ public class SubscriberService implements MessageListener {
             }
         }
         if(msgObj != null) {
+            System.out.println("왜안와");
             /**deserialize 한 메시지를 내가 만든 ChatMessage 객체로 맵핑 **/
             recvMsg(msgObj);
         }
