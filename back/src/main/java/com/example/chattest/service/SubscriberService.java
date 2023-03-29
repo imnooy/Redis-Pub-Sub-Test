@@ -2,6 +2,7 @@ package com.example.chattest.service;
 
 import com.example.chattest.model.ChatMessage;
 import com.example.chattest.model.ChatRoom;
+import com.example.chattest.model.ReadDto;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -35,15 +36,29 @@ public class SubscriberService implements MessageListener {
         try {
             System.out.println("메세지임?");
             msgObj = objectMapper.readValue(publishedMessge, ChatMessage.class);
+            if(msgObj != null && msgObj.getId() == null) {
+                throw new Exception();
+            }
             System.out.println(msgObj);
         } catch (Exception e) {
             System.out.println("hi");
             ChatRoom chatRoom = null;
             try {
                 chatRoom = objectMapper.readValue(publishedMessge, ChatRoom.class);
+                if(chatRoom == null || (chatRoom != null && chatRoom.getId() == null)) {
+                    throw new Exception();
+                }
+                System.out.println(msgObj);
                 recvRoom(chatRoom);
-            } catch (JsonProcessingException ex) {
-                throw new RuntimeException(ex);
+            } catch (Exception ex) {
+                ReadDto readDto = null;
+                System.out.println("얘도 호출좀.");
+                try {
+                    readDto = objectMapper.readValue(publishedMessge, ReadDto.class);
+                    recvReadDto(readDto);
+                } catch (JsonProcessingException e1) {
+                    throw new RuntimeException(e1);
+                }
             }
         }
         if(msgObj != null) {
@@ -63,5 +78,9 @@ public class SubscriberService implements MessageListener {
     public void recvRoom(ChatRoom chatRoom) {
         System.out.println("여긴오냐?");
         messageTemplate.convertAndSend("/sub/chat/rooms", chatRoom);
+    }
+
+    public void recvReadDto(ReadDto readDto) {
+        messageTemplate.convertAndSend("/sub/chat/entrance", readDto);
     }
 }

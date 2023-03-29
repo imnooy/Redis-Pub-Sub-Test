@@ -51,6 +51,9 @@ function App() {
     if (sender !== "") {
       localStorage.setItem('wschat.sender', sender);
       localStorage.setItem('wschat.roomId', roomId);
+
+      stompClient.send("/api/pub/chat/entrance", {}, JSON.stringify({roomId:roomId}));
+
       setShowChat(true);
     }
     else return;

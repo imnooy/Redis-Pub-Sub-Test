@@ -82,6 +82,7 @@ public class ChatRepository {
 
     public void addTopic(ChannelTopic topic) {
         msgTopics.put(topic.getTopic(), topic);
+        redisMessageListener.addMessageListener(subscriberService, topic);
     }
 
     /**

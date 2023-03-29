@@ -2,6 +2,7 @@ package com.example.chattest.controller;
 
 import com.example.chattest.model.ChatMessage;
 import com.example.chattest.model.ChatRoom;
+import com.example.chattest.model.EntranceDto;
 import com.example.chattest.repository.ChatRepository;
 import com.example.chattest.service.PublisherService;
 import lombok.RequiredArgsConstructor;
@@ -37,5 +38,15 @@ public class ChatController {
     public void room(ChatRoom message) {
         ChannelTopic topic = chatRepository.getRoomsTopic();
         publisherService.roomPublish(topic, message);
+    }
+
+    @MessageMapping("/chat/entrance")
+    public void entrance(EntranceDto entranceDto) {
+        ChannelTopic topic = chatRepository.getMsgTopic(entranceDto.getRoomId());
+        if(topic == null) {
+            topic = new ChannelTopic(entranceDto.getRoomId());
+            chatRepository.addTopic(topic);
+        }
+        publisherService.entrancePublish(topic, entranceDto);
     }
 }

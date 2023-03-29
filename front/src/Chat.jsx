@@ -53,6 +53,11 @@ function Chat() {
   const connect = () => {
     let reconnect = 0;
     stompClient.connect({}, function(frame) {
+      stompClient.subscribe("/sub/chat/entrance", function(readDto) {
+        const readIndex = JSON.parse(readDto.body);
+        recvReadDto(readIndex);
+      })
+      
       stompClient.subscribe(`/sub/chat/room/${roomId}`, function(message) {
         const recv = JSON.parse(message.body);
         recvMessage(recv);
@@ -67,6 +72,18 @@ function Chat() {
     });
   };
 
+  const recvReadDto = (readIndex) => {
+    const lastReadIndex = readIndex.lastReadIndex;
+    const tempmessage = [...messages];
+    for(let i = lastReadIndex ; i < tempmessage.length ; i++){
+      tempmessage[i].isRead = true;
+    }
+
+    setMessages([
+      ...tempmessage,
+    ]);
+  }
+
   return (
     <div id="Chat">
       <div>{room.id}</div>
@@ -75,6 +92,7 @@ function Chat() {
           <li key={index}>
             <span>{msg.senderId}가 보냄: </span>
             <span>{msg.content}</span>
+            <h3>{msg.isRead ? '읽음' : '안읽음'}</h3>
           </li>
         ))}
       </ul>
