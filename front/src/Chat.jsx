@@ -15,14 +15,14 @@ function Chat() {
 
   useEffect(() => {
     findRoom();
-    connect();
     axios.get(`http://localhost:8080/api/chat/room/${roomId}`+"/messages")
-    .then((response) => {
-      setMessages(response.data);
+    .then(({data}) => {
+      setMessages([...data]);
     })
     .catch((error) => {
       console.log(error);
     });
+    connect();
   }, []);
 
   const findRoom = () => {
@@ -52,12 +52,14 @@ function Chat() {
 
   const connect = () => {
     let reconnect = 0;
+    console.log("???")
+    console.log(messages.length)
     stompClient.connect({}, function(frame) {
-      stompClient.subscribe("/sub/chat/entrance", function(readDto) {
+      stompClient.subscribe(`/sub/chat/entrance`, function(readDto) {
         const readIndex = JSON.parse(readDto.body);
         recvReadDto(readIndex);
-      })
-      
+      });
+
       stompClient.subscribe(`/sub/chat/room/${roomId}`, function(message) {
         const recv = JSON.parse(message.body);
         recvMessage(recv);
@@ -74,14 +76,16 @@ function Chat() {
 
   const recvReadDto = (readIndex) => {
     const lastReadIndex = readIndex.lastReadIndex;
-    const tempmessage = [...messages];
-    for(let i = lastReadIndex ; i < tempmessage.length ; i++){
-      tempmessage[i].isRead = true;
+    console.log(messages)
+    console.log("메세지길이." + messages.length)
+
+    let copies = [...messages];
+
+    for(let i = lastReadIndex; i < copies.length; i++) {
+      copies[i].isRead = true;
     }
 
-    setMessages([
-      ...tempmessage,
-    ]);
+    setMessages(copies);
   }
 
   return (

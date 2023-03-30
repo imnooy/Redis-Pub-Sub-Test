@@ -32,41 +32,57 @@ public class SubscriberService implements MessageListener {
     public void onMessage(Message message, byte[] pattern) {
         /**redis에 publish 된 데이터 받아서 deserialize**/
         String publishedMessge = (String) redisTemplate.getStringSerializer().deserialize(message.getBody());
-        ChatMessage msgObj = null;
-        try {
-            System.out.println("메세지임?");
-            msgObj = objectMapper.readValue(publishedMessge, ChatMessage.class);
-            if(msgObj != null && msgObj.getId() == null) {
-                throw new Exception();
-            }
-            System.out.println(msgObj);
-        } catch (Exception e) {
-            System.out.println("hi");
-            ChatRoom chatRoom = null;
-            try {
-                chatRoom = objectMapper.readValue(publishedMessge, ChatRoom.class);
-                if(chatRoom == null || (chatRoom != null && chatRoom.getId() == null)) {
-                    throw new Exception();
-                }
-                System.out.println(msgObj);
-                recvRoom(chatRoom);
-            } catch (Exception ex) {
-                ReadDto readDto = null;
-                System.out.println("얘도 호출좀.");
-                try {
-                    readDto = objectMapper.readValue(publishedMessge, ReadDto.class);
-                    recvReadDto(readDto);
-                } catch (JsonProcessingException e1) {
-                    throw new RuntimeException(e1);
-                }
-            }
+        if(tryMsg(publishedMessge) != null) {
+            recvMsg(tryMsg(publishedMessge));
         }
-        if(msgObj != null) {
-            System.out.println("왜안와");
-            /**deserialize 한 메시지를 내가 만든 ChatMessage 객체로 맵핑 **/
-            recvMsg(msgObj);
+        else if(tryRead(publishedMessge)!=null) {
+            recvReadDto(tryRead(publishedMessge));
+        }
+        else {
+            ChatRoom chatRoom = tryRoom(publishedMessge);
+            recvRoom(chatRoom);
+        }
+    }
+
+    public ReadDto tryRead(String msg) {
+        ReadDto readDto = null;
+        try {
+            readDto = objectMapper.readValue(msg, ReadDto.class);
+        } catch(Exception ex) {
+            return null;
+        }
+        if(readDto == null || (readDto!=null && readDto.getLastReadIndex()==null)) {
+            return null;
+        }
+        return readDto;
+    }
+
+    public ChatMessage tryMsg(String msg) {
+        ChatMessage chatMessage = null;
+        try {
+            chatMessage = objectMapper.readValue(msg, ChatMessage.class);
+        } catch(Exception ex) {
+            return null;
+        }
+        if(chatMessage == null || (chatMessage!=null && chatMessage.getId()==null)) {
+            return null;
         }
 
+        return chatMessage;
+    }
+
+    public ChatRoom tryRoom(String msg) {
+        ChatRoom chatRoom = null;
+        try {
+            chatRoom = objectMapper.readValue(msg, ChatRoom.class);
+        } catch (Exception ex) {
+            return null;
+        }
+        if(chatRoom == null || (chatRoom!=null && chatRoom.getId()==null)) {
+            return null;
+        }
+
+        return chatRoom;
     }
 
     public void recvMsg(ChatMessage chatMessage) {
@@ -81,6 +97,7 @@ public class SubscriberService implements MessageListener {
     }
 
     public void recvReadDto(ReadDto readDto) {
+        System.out.println("여기를 와야하는데??");
         messageTemplate.convertAndSend("/sub/chat/entrance", readDto);
     }
 }

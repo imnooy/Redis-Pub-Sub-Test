@@ -86,6 +86,8 @@ public class PublisherService {
         Long lastReadIndex = chatRoom.getLastReadIndex().get(myId);
         for(Long i = lastReadIndex; i<opsListChatMessages.size(chatRoom.getId()); i++) {
             ChatMessage msg = objectMapper.convertValue(opsListChatMessages.index(chatRoom.getId(), i), ChatMessage.class);
+            System.out.println("바뀌는 메세지임");
+            System.out.println(msg);
             msg.setRead(true);
             opsListChatMessages.set(chatRoom.getId(), i, msg);
         }
